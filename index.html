@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Menu</title>
+    <style>
+        /* General Styles and Layout */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f0f2f5;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.dark-mode {
+            background-color: #1e1e1e;
+            color: #f0f2f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        body.dark-mode header {
+            background-color: #2c2c2c;
+            color: #f0f2f5;
+        }
+        
+        body.dark-mode header .brand {
+            color: #ff6347;
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff6347;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .cart-btn, .dark-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #333;
+        }
+        
+        body.dark-mode .cart-btn, body.dark-mode .dark-toggle {
+            color: #f0f2f5;
+        }
+
+        .cart-btn {
+            position: relative;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #ff6347;
+            color: #fff;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.8rem;
+        }
+
+        /* Filters and Search */
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            align-items: center;
+        }
+
+        #searchInput, #categoryFilter {
+            flex-grow: 1;
+            padding: 0.5rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            color: #333;
+        }
+        
+        body.dark-mode #searchInput, body.dark-mode #categoryFilter {
+            background-color: #3a3a3a;
+            color: #f0f2f5;
+            border-color: #555;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            cursor: pointer;
+            color: #333;
+        }
+
+        body.dark-mode .filter-btn {
+            background-color: #3a3a3a;
+            color: #f0f2f5;
+            border-color: #555;
+        }
+        
+        .filter-btn.active {
+            background-color: #ff6347;
+            color: #fff;
+            border-color: #ff6347;
+        }
+        
+        body.dark-mode .filter-btn.active {
+            background-color: #ff6347;
+            color: #fff;
+            border-color: #ff6347;
+        }
+
+        /* Dish List Grid */
+        #dishList {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .dish-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            cursor: pointer;
+            text-align: center;
+            padding: 1rem;
+            transition: transform 0.2s;
+        }
+        
+        body.dark-mode .dish-card {
+            background-color: #2c2c2c;
+            color: #f0f2f5;
+        }
+
+        .dish-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .dish-img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .dish-details {
+            margin-top: 0.5rem;
+        }
+
+        /* Modals */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-backdrop.hidden {
+            display: none;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 1.5rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            color: #333;
+        }
+        
+        body.dark-mode .modal-content {
+            background-color: #2c2c2c;
+            color: #f0f2f5;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #333;
+        }
+        
+        body.dark-mode .close-btn {
+            color: #f0f2f5;
+        }
+
+        .modal-body {
+            text-align: center;
+        }
+
+        .modal-body img {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .modal-footer {
+            margin-top: 1rem;
+        }
+
+        .add-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .add-btn.added {
+            background-color: #36a420;
+            cursor: default;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        body.dark-mode .cart-item {
+            border-color: #444;
+        }
+
+        .quantity-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .qty-btn {
+            background: none;
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            color: #333;
+        }
+
+        body.dark-mode .qty-btn {
+            background-color: #444;
+            color: #f0f2f5;
+            border-color: #666;
+        }
+
+        .cart-summary {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #25d366;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .checkout-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .checkout-form label {
+            font-weight: bold;
+        }
+
+        .checkout-form input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            color: #333;
+        }
+        
+        body.dark-mode .checkout-form input {
+            background-color: #3a3a3a;
+            color: #f0f2f5;
+            border-color: #555;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        /* Utilities */
+        .hidden {
+            display: none;
+        }
+
+        .muted {
+            color: #888;
+        }
+        
+        body.dark-mode .muted {
+            color: #ccc;
+        }
+
+        .promo-banner {
+            background-color: #ffd700;
+            color: #333;
+            text-align: center;
+            padding: 0.75rem;
+            margin-top: 1rem;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">My Restaurant</div>
+        <div class="controls">
+            <button class="cart-btn" id="cartBtn" aria-label="Open Cart">
+                🛒
+                <span class="cart-count" id="cartCount">0</span>
+            </button>
+            <button class="dark-toggle" id="darkToggle">🌙</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div id="promoArea" class="promo-banner hidden">
+            <h2 id="ppHeadline"></h2>
+            <p id="ppSubtext"></p>
+        </div>
+
+        <div class="filters">
+            <input type="search" id="searchInput" placeholder="Search dishes...">
+            <select id="categoryFilter">
+                <option value="all">All Categories</option>
+            </select>
+            <button class="filter-btn" data-filter="vegetarian">🌱 शाकाहारी</button>
+            <button class="filter-btn" data-filter="non-vegetarian">🍗 मांसाहारी</button>
+            <button class="filter-btn" data-filter="gluten-free">🌾 ग्लूटेन-फ्री</button>
+        </div>
+
+        <div id="dishList"></div>
+    </div>
+
+    <div class="modal-backdrop hidden" id="modal" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="mTitle"></h2>
+                <button class="close-btn" id="closeModal">×</button>
+            </div>
+            <div class="modal-body">
+                <img id="mImage" src="" alt="Dish image">
+                <p class="muted" id="mDesc"></p>
+                <div id="mRating" class="muted"></div>
+                <div class="price" id="mPrice"></div>
+                <textarea id="specialInstructions" placeholder="कोई खास निर्देश? जैसे: कम तीखा, बिना प्याज के..." rows="3"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="add-btn" id="addBtn">Add to cart</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop hidden" id="cartModal" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Your Cart</h2>
+                <button class="close-btn" id="closeCart">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="cartItems"></div>
+                <div id="cartEmpty" class="muted">Your cart is empty.</div>
+                <div class="cart-summary">
+                    <span>Subtotal:</span>
+                    <span id="cartSubtotal">₹0</span>
+                </div>
+                <button class="checkout-btn" id="checkoutBtn">Checkout on WhatsApp</button>
+                <button class="icon-btn muted" id="clearCart" style="margin-top: 1rem;">Clear Cart</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop hidden" id="checkoutModal" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Customer Details</h2>
+                <button class="close-btn" id="closeCheckout">×</button>
+            </div>
+            <form id="checkoutForm" class="checkout-form">
+                <div>
+                    <label for="customerName">Your Name:</label>
+                    <input type="text" id="customerName" required>
+                </div>
+                <div>
+                    <label for="tableNumber">Table Number:</label>
+                    <input type="text" id="tableNumber" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="cancelCheckout">Cancel</button>
+                    <button type="submit" id="submitCheckout">Confirm Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Data for the menu items (can be fetched from an API in a real-world app)
+        const dishes = [
+            { id: 1, name: "Burger", category: "Burgers", price: 100, image: "dish/burger.png", description: "A classic beef patty with lettuce and tomato.", emoji: "🍔", vegetarian: false, glutenFree: false },
+            { id: 3, name: "Frankie", category: "Rolls", price: 110, image: "dish/Frankie.png", description: "A spicy potato and veggie roll.", emoji: "🌯", vegetarian: true, glutenFree: false },
+            { id: 4, name: "Fried Momos", category: "Momos", price: 120, image: "dish/Fried Momos.png", description: "Crispy fried dumplings served with spicy chutney.", emoji: "🥟", vegetarian: true, glutenFree: false },
+            { id: 5, name: "Margherita Pizza", category: "Pizza", price: 350, image: "dish/Margherita Pizza.jpeg", description: "A classic pizza with fresh mozzarella, tomatoes, and basil.", emoji: "🍕", vegetarian: true, glutenFree: true },
+            { id: 6, name: "Classic Cheeseburger", category: "Burgers", price: 280, image: "dish/burger.png", description: "Juicy beef patty, cheddar cheese, lettuce, and tomato on a toasted bun.", emoji: "🍔", vegetarian: false, glutenFree: false },
+            { id: 7, name: "Chicken Biryani", category: "Main Course", price: 320, image: "dish/Chicken Biryani.jpeg", description: "Fragrant basmati rice cooked with spiced chicken, herbs, and caramelized onions.", emoji: "🍚", vegetarian: false, glutenFree: false },
+            { id: 8, name: "Onion Samosa", category: "Appetizer", price: 100, image: "dish/Onion Samosa.jpeg", description: "Crispy fried pastry filled with a savory mix of spiced onions and potatoes.", emoji: "🧅", vegetarian: true, glutenFree: false },
+            { id: 9, name: "Naan & Dal Makhani", category: "Indian Breads", price: 250, image: "dish/Naan & Dal Makhani.jpeg", description: "Soft, buttery naan bread served with a classic rich and creamy lentil curry.", emoji: "🫓", vegetarian: true, glutenFree: false },
+            { id: 10, name: "Manchurian Rice", category: "Chinese", price: 280, image: "dish/manchurian rice.jpeg", description: "Fluffy rice stir-fried with Indo-Chinese style vegetable Manchurian balls in a spicy and tangy sauce.", emoji: "🍜", vegetarian: true, glutenFree: false },
+            { id: 11, name: "Vegetable Chowmein", category: "Chinese", price: 280, image: "dish/Vegetable Chowmein.jpeg", description: "Stir-fried noodles with a medley of fresh vegetables and a tangy sauce.", emoji: "🍜", vegetarian: true, glutenFree: false },
+            { id: 12, name: "Kadai Paneer", category: "Main Course", price: 400, image: "dish/Kadai Paneer.jpeg", description: "Paneer cooked with bell peppers, onions, and spices in a traditional Indian kadai.", emoji: "🍲", vegetarian: true, glutenFree: true },
+            { id: 13, name: "Tandoori Chicken", category: "Tandoor", price: 480, image: "dish/Tandoori Chicken.jpeg", description: "Juicy chicken pieces marinated in yogurt and spices, cooked to perfection in a tandoor.", emoji: "🍢", vegetarian: false, glutenFree: true }
+        ];
+
+        const promoData = {
+            headline: "Limited-time offer!",
+            subtext: "Get 20% off all burgers this week! 🍔"
+        };
+
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        
+        // DOM Elements
+        const dishList = document.getElementById('dishList');
+        const searchInput = document.getElementById('searchInput');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const cartBtn = document.getElementById('cartBtn');
+        const cartCount = document.getElementById('cartCount');
+        const darkToggle = document.getElementById('darkToggle');
+        const promoArea = document.getElementById('promoArea');
+        const ppHeadline = document.getElementById('ppHeadline');
+        const ppSubtext = document.getElementById('ppSubtext');
+
+        const modal = document.getElementById('modal');
+        const closeModalBtn = document.getElementById('closeModal');
+        const mTitle = document.getElementById('mTitle');
+        const mImage = document.getElementById('mImage');
+        const mDesc = document.getElementById('mDesc');
+        const mRating = document.getElementById('mRating');
+        const mPrice = document.getElementById('mPrice');
+        const specialInstructions = document.getElementById('specialInstructions');
+        const addBtn = document.getElementById('addBtn');
+
+        const cartModal = document.getElementById('cartModal');
+        const closeCartBtn = document.getElementById('closeCart');
+        const cartItemsContainer = document.getElementById('cartItems');
+        const cartEmpty = document.getElementById('cartEmpty');
+        const cartSubtotal = document.getElementById('cartSubtotal');
+        const clearCartBtn = document.getElementById('clearCart');
+        const checkoutBtn = document.getElementById('checkoutBtn');
+
+        const checkoutModal = document.getElementById('checkoutModal');
+        const closeCheckoutBtn = document.getElementById('closeCheckout');
+        const checkoutForm = document.getElementById('checkoutForm');
+        const customerNameInput = document.getElementById('customerName');
+        const tableNumberInput = document.getElementById('tableNumber');
+
+        // Functions
+        function renderDishes(filteredDishes) {
+            dishList.innerHTML = '';
+            if (filteredDishes.length === 0) {
+                dishList.innerHTML = `<p class="muted" style="text-align: center;">No dishes found. Try a different search or filter.</p>`;
+                return;
+            }
+            filteredDishes.forEach(dish => {
+                const dishCard = document.createElement('div');
+                dishCard.classList.add('dish-card');
+                dishCard.innerHTML = `
+                    <img src="${dish.image}" alt="${dish.name}" class="dish-img">
+                    <div class="dish-details">
+                        <h3 class="dish-name">${dish.name} <span class="emoji">${dish.emoji}</span></h3>
+                        <p class="dish-category">${dish.category}</p>
+                        <p class="dish-price">₹${dish.price}</p>
+                    </div>
+                `;
+                dishCard.addEventListener('click', () => showDishModal(dish));
+                dishList.appendChild(dishCard);
+            });
+        }
+
+        function updateCartCount() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCount.textContent = totalItems;
+            cartBtn.style.display = totalItems > 0 ? 'flex' : 'none';
+        }
+
+        function updateCartModal() {
+            cartItemsContainer.innerHTML = '';
+            if (cart.length === 0) {
+                cartEmpty.classList.remove('hidden');
+                checkoutBtn.disabled = true;
+                clearCartBtn.classList.add('hidden');
+            } else {
+                cartEmpty.classList.add('hidden');
+                checkoutBtn.disabled = false;
+                clearCartBtn.classList.remove('hidden');
+
+                cart.forEach(item => {
+                    const itemElement = document.createElement('div');
+                    itemElement.classList.add('cart-item');
+                    itemElement.innerHTML = `
+                        <span>${item.name} (${item.quantity})</span>
+                        <span>₹${item.price * item.quantity}</span>
+                        <div class="quantity-controls">
+                            <button class="qty-btn" data-id="${item.id}" data-action="decrement">-</button>
+                            <button class="qty-btn" data-id="${item.id}" data-action="increment">+</button>
+                        </div>
+                    `;
+                    cartItemsContainer.appendChild(itemElement);
+                });
+            }
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            cartSubtotal.textContent = `₹${subtotal}`;
+        }
+
+        function showDishModal(dish) {
+            modal.classList.remove('hidden');
+            modal.setAttribute('aria-hidden', 'false');
+            mTitle.textContent = dish.name;
+            mImage.src = dish.image;
+            mDesc.textContent = dish.description;
+            mPrice.textContent = `₹${dish.price}`;
+            addBtn.dataset.id = dish.id;
+        }
+
+        function showCartModal() {
+            cartModal.classList.remove('hidden');
+            cartModal.setAttribute('aria-hidden', 'false');
+            updateCartModal();
+        }
+
+        function showCheckoutModal() {
+            checkoutModal.classList.remove('hidden');
+            checkoutModal.setAttribute('aria-hidden', 'false');
+        }
+
+        function hideAllModals() {
+            modal.classList.add('hidden');
+            modal.setAttribute('aria-hidden', 'true');
+            cartModal.classList.add('hidden');
+            cartModal.setAttribute('aria-hidden', 'true');
+            checkoutModal.classList.add('hidden');
+            checkoutModal.setAttribute('aria-hidden', 'true');
+        }
+
+        function handleSearchAndFilter() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedCategory = categoryFilter.value;
+            const vegetarianFilterActive = document.querySelector('.filter-btn[data-filter="vegetarian"]').classList.contains('active');
+            const nonVegetarianFilterActive = document.querySelector('.filter-btn[data-filter="non-vegetarian"]').classList.contains('active');
+            const glutenFreeFilterActive = document.querySelector('.filter-btn[data-filter="gluten-free"]').classList.contains('active');
+        
+            const filteredDishes = dishes.filter(dish => {
+                const matchesSearch = dish.name.toLowerCase().includes(searchTerm) || dish.description.toLowerCase().includes(searchTerm);
+                const matchesCategory = selectedCategory === 'all' || dish.category === selectedCategory;
+                
+                let matchesDietary = true;
+                if (vegetarianFilterActive && !dish.vegetarian) {
+                    matchesDietary = false;
+                }
+                if (nonVegetarianFilterActive && dish.vegetarian) {
+                    matchesDietary = false;
+                }
+                if (glutenFreeFilterActive && !dish.glutenFree) {
+                    matchesDietary = false;
+                }
+
+                return matchesSearch && matchesCategory && matchesDietary;
+            });
+            renderDishes(filteredDishes);
+        }
+        
+        function generateWhatsAppMessage(name, table) {
+            let orderSummary = `Hello, I would like to place an order from table ${table}.%0A%0ACustomer Name: ${name}%0A%0AOrder Details:%0A`;
+            const subtotal = cart.reduce((sum, item) => {
+                orderSummary += `${item.quantity} x ${item.name} - ₹${item.price * item.quantity}%0A`;
+                return sum + (item.price * item.quantity);
+            }, 0);
+
+            orderSummary += `%0ASubtotal: ₹${subtotal}%0A%0A`;
+            orderSummary += `Special Instructions: ${specialInstructions.value.trim() || 'None'}`;
+            const phoneNumber = "9555702945"; // Replace with your restaurant's WhatsApp number
+
+            return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(orderSummary)}`;
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Populate categories
+            const categories = [...new Set(dishes.map(dish => dish.category))];
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                categoryFilter.appendChild(option);
+            });
+
+            // Render initial state
+            renderDishes(dishes);
+            updateCartCount();
+            
+            // Promo banner
+            promoArea.classList.remove('hidden');
+            ppHeadline.textContent = promoData.headline;
+            ppSubtext.textContent = promoData.subtext;
+        });
+
+        searchInput.addEventListener('input', handleSearchAndFilter);
+        categoryFilter.addEventListener('change', handleSearchAndFilter);
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.classList.toggle('active');
+                handleSearchAndFilter();
+            });
+        });
+
+        cartBtn.addEventListener('click', showCartModal);
+        darkToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            darkToggle.textContent = darkToggle.textContent === '🌙' ? '☀️' : '🌙';
+        });
+
+        closeModalBtn.addEventListener('click', hideAllModals);
+        closeCartBtn.addEventListener('click', hideAllModals);
+        closeCheckoutBtn.addEventListener('click', hideAllModals);
+
+        addBtn.addEventListener('click', (e) => {
+            const dishId = parseInt(e.target.dataset.id);
+            const dish = dishes.find(d => d.id === dishId);
+            const existingItem = cart.find(item => item.id === dishId);
+            
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                cart.push({ ...dish, quantity: 1, instructions: specialInstructions.value });
+            }
+            
+            specialInstructions.value = '';
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+
+            // Change button state to "Added"
+            const originalText = addBtn.textContent;
+            addBtn.textContent = 'Added';
+            addBtn.classList.add('added');
+            setTimeout(() => {
+                addBtn.textContent = originalText;
+                addBtn.classList.remove('added');
+                hideAllModals(); // Hide modal after a short delay
+            }, 1000); // 1-second delay
+        });
+
+        cartItemsContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('qty-btn')) {
+                const id = parseInt(e.target.dataset.id);
+                const action = e.target.dataset.action;
+                const item = cart.find(i => i.id === id);
+
+                if (action === 'increment') {
+                    item.quantity++;
+                } else if (action === 'decrement') {
+                    item.quantity--;
+                    if (item.quantity === 0) {
+                        cart = cart.filter(i => i.id !== id);
+                    }
+                }
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateCartModal();
+                updateCartCount();
+            }
+        });
+
+        clearCartBtn.addEventListener('click', () => {
+            cart = [];
+            localStorage.removeItem('cart');
+            updateCartModal();
+            updateCartCount();
+        });
+
+        checkoutBtn.addEventListener('click', () => {
+            hideAllModals();
+            showCheckoutModal();
+        });
+
+        checkoutForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const customerName = customerNameInput.value;
+            const tableNumber = tableNumberInput.value;
+
+            const whatsappLink = generateWhatsAppMessage(customerName, tableNumber);
+            window.open(whatsappLink, '_blank');
+
+            // Reset cart and modal state after order is placed
+            cart = [];
+            localStorage.removeItem('cart');
+            updateCartCount();
+            hideAllModals();
+            customerNameInput.value = '';
+            tableNumberInput.value = '';
+        });
+        
+        // Event listener to close modal on outside click
+        document.addEventListener('click', (e) => {
+            if (!modal.contains(e.target) && !e.target.closest('.dish-card') && !modal.classList.contains('hidden')) {
+                hideAllModals();
+            }
+            if (!cartModal.contains(e.target) && !e.target.closest('#cartBtn') && !cartModal.classList.contains('hidden')) {
+                hideAllModals();
+            }
+            if (!checkoutModal.contains(e.target) && !e.target.closest('#checkoutBtn') && !checkoutModal.classList.contains('hidden')) {
+                hideAllModals();
+            }
+        });
+    </script>
+</body>
+</html>
